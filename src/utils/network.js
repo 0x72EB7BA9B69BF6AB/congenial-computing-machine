@@ -39,10 +39,16 @@ function isValidUserAgent(userAgent = '', allowedAgents = []) {
  * @returns {string} URL WebSocket complète
  */
 function generateWebSocketURL(req) {
+  const config = require('../config/config');
   const protocol = req.headers['x-forwarded-proto'] || 'ws';
-  const host = req.headers.host || 'b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
+  let host = req.headers.host || 'b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
   const wsProtocol = protocol === 'https' ? 'wss' : 'ws';
-  return `${wsProtocol}://${host}`;
+  
+  // Remove any existing port and add the WebSocket port
+  const hostWithoutPort = host.split(':')[0];
+  const wsPort = config.ports.websocket;
+  
+  return `${wsProtocol}://${hostWithoutPort}:${wsPort}`;
 }
 
 module.exports = {
