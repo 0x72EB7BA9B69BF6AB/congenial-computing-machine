@@ -72,19 +72,20 @@ function ${randomNames.updateConnectionStatus}(status) {
     console.log('[STATUS]', status);
 }
 
-function ${randomNames.addDebugLog}(message, type = 'info') {
-    // Log silencieux dans la console du navigateur
-    console.log(\`[CLIENT-\${type.toUpperCase()}]\`, message);
-}
-
 // Interception des logs pour debug silencieux
 const ${randomNames.originalLog} = console.log;
+const ${randomNames.originalError} = console.error;
+
+function ${randomNames.addDebugLog}(message, type = 'info') {
+    // Log silencieux dans la console du navigateur - utilise les méthodes originales pour éviter la récursion
+    ${randomNames.originalLog}(\`[CLIENT-\${type.toUpperCase()}]\`, message);
+}
+
 console.log = function(...args) {
     ${randomNames.originalLog}.apply(console, args);
     ${randomNames.addDebugLog}(args.join(' '), 'info');
 };
 
-const ${randomNames.originalError} = console.error;
 console.error = function(...args) {
     ${randomNames.originalError}.apply(console, args);
     ${randomNames.addDebugLog}(args.join(' '), 'error');
