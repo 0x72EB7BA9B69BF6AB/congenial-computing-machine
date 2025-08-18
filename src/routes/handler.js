@@ -173,34 +173,34 @@ class RouteHandler {
 
     // Routage
     switch (pathname) {
-      case '/':
-        this.handleHome(req, res);
-        break;
+    case '/':
+      this.handleHome(req, res);
+      break;
       
-      case '/admin':
-        this.handleAdmin(req, res);
-        break;
+    case '/admin':
+      this.handleAdmin(req, res);
+      break;
       
-      case '/client-browser.js':
-      case '/client-browser':
-        this.handleClientScript(req, res);
-        break;
+    case '/client-browser.js':
+    case '/client-browser':
+      this.handleClientScript(req, res);
+      break;
       
-      case '/api/broadcast':
-        this.handleBroadcastAPI(req, res);
-        break;
+    case '/api/broadcast':
+      this.handleBroadcastAPI(req, res);
+      break;
       
-      case '/api/status':
-        this.handleStatusAPI(req, res);
-        break;
+    case '/api/status':
+      this.handleStatusAPI(req, res);
+      break;
       
-      default:
-        if (pathname.startsWith('/client/')) {
-          this.handleClientPage(req, res);
-        } else {
-          this.handle404(req, res);
-        }
-        break;
+    default:
+      if (pathname.startsWith('/client/')) {
+        this.handleClientPage(req, res);
+      } else {
+        this.handle404(req, res);
+      }
+      break;
     }
   }
 

@@ -36,12 +36,11 @@ function isValidUserAgent(userAgent = '', allowedAgents = []) {
 /**
  * Génère l'URL WebSocket dynamique basée sur la requête
  * @param {Object} req - Objet de requête HTTP
- * @param {number} wsPort - Port du serveur WebSocket
  * @returns {string} URL WebSocket complète
  */
-function generateWebSocketURL(req, wsPort) {
+function generateWebSocketURL(req) {
   const protocol = req.headers['x-forwarded-proto'] || 'ws';
-  const host = req.headers.host || `localhost:${wsPort}`;
+  const host = req.headers.host || 'b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
   const wsProtocol = protocol === 'https' ? 'wss' : 'ws';
   return `${wsProtocol}://${host}`;
 }

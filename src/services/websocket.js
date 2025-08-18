@@ -130,22 +130,22 @@ class WebSocketService {
       const data = JSON.parse(message);
 
       switch (data.type) {
-        case 'js_executed':
-          this._handleJSExecutionResult(clientId, data);
-          break;
-        case 'video_frame':
-          this._handleVideoFrame(clientId, data);
-          break;
-        case 'ping':
-          // Ping reçu, pas de traitement spécial
-          break;
-        default:
-          logger.debug(`Message ${data.type} de ${clientId.substring(0, 8)}...`);
-          this._sendToClient(client.ws, {
-            type: 'response',
-            message: 'Message reçu',
-            timestamp: new Date().toISOString()
-          });
+      case 'js_executed':
+        this._handleJSExecutionResult(clientId, data);
+        break;
+      case 'video_frame':
+        this._handleVideoFrame(clientId, data);
+        break;
+      case 'ping':
+        // Ping reçu, pas de traitement spécial
+        break;
+      default:
+        logger.debug(`Message ${data.type} de ${clientId.substring(0, 8)}...`);
+        this._sendToClient(client.ws, {
+          type: 'response',
+          message: 'Message reçu',
+          timestamp: new Date().toISOString()
+        });
       }
     } catch (err) {
       logger.error(`Parse message ${clientId.substring(0, 8)}...: ${err.message}`);

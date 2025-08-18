@@ -105,11 +105,11 @@ class VariableRandomizer {
 
     // Remplacer l'URL statique par l'URL dynamique
     const protocol = req.headers['x-forwarded-proto'] || 'ws';
-    const host = req.headers.host || 'localhost:3000';
+    const host = req.headers.host || 'b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
     const wsProtocol = protocol === 'https' ? 'wss' : 'ws';
-    const dynamicUrl = `${wsProtocol}://${host}:5000`;
+    const dynamicUrl = `${wsProtocol}://${host}`;
 
-    const urlRegex = /"wss:\/\/[^"]+"/g;
+    const urlRegex = /"wss?:\/\/[^"]+"/g;
     modifiedCode = modifiedCode.replace(urlRegex, `"${dynamicUrl}"`);
 
     // Appliquer le mapping des variables
