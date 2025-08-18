@@ -42,16 +42,22 @@ npm install
 ```
 
 ### Configuration
-Modifiez le fichier `src/config/config.js` selon vos besoins :
+
+#### Ports
+Le serveur utilise maintenant les ports suivants :
+- **WebSocket** : Port 3000 (par défaut)
+- **HTTP** : Port 8080 (par défaut, utilisez port 80 avec sudo si nécessaire)
+
+Modifiez le fichier `src/config/config.js` ou utilisez les variables d'environnement :
 
 ```javascript
 module.exports = {
   ports: {
-    websocket: 5000,  // Port WebSocket
-    http: 80          // Port HTTP
+    websocket: process.env.WS_PORT || 3000,  // Port WebSocket
+    http: process.env.HTTP_PORT || 8080      // Port HTTP (80 nécessite sudo)
   },
   security: {
-    whitelistFile: 'whitelist.txt',
+    whitelistFile: 'whitelist.local.txt',    // Fichier de whitelist IP
     allowedUserAgents: ['CitizenFX', 'Mozilla', 'Chrome', 'Safari', 'Firefox'],
     maxRetries: 5
   }
@@ -59,10 +65,18 @@ module.exports = {
 };
 ```
 
-### Whitelist IP
-Éditez le fichier `whitelist.txt` pour ajouter les IPs à bloquer :
+Pour utiliser le port 80 :
+```bash
+sudo HTTP_PORT=80 npm start
 ```
-# IPs à bloquer (une par ligne)
+
+#### Whitelist IP
+1. Copiez le fichier template : `cp whitelist.txt whitelist.local.txt`
+2. Éditez `whitelist.local.txt` pour ajouter vos IPs autorisées :
+
+```
+# IPs autorisées (une par ligne)
+127.0.0.1
 192.168.1.100
 10.0.0.50
 # Les lignes commençant par # sont des commentaires

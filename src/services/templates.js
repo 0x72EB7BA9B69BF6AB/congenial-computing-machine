@@ -170,17 +170,19 @@ showNotification('Commande exécutée avec succès!');"></textarea>
         <div id="broadcastResult" class="broadcast-result" style="display: none;"></div>
     </div>
 
-    <h2>👥 Clients Connectés (${clientsCount})</h2>
+    <h2>👥 Clients Connectés (${clientsCount}) 
+        <button class="refresh-button" onclick="refreshPage()" title="Actualiser la page">🔄 Actualiser</button>
+    </h2>
     ${clientsHTML}
 
     <div class="footer">
-        <p><small>🔄 Page auto-refresh toutes les ${config.client.autoRefreshInterval / 1000} secondes</small></p>
         <p><small>📡 WebSocket Server v1.0 - Sécurisé avec whitelist IP et validation User-Agent</small></p>
     </div>
 
     <script>
-        // Auto-refresh de la page
-        setTimeout(() => location.reload(), ${config.client.autoRefreshInterval});
+        function refreshPage() {
+            location.reload();
+        }
 
         function broadcastJS() {
             const code = document.getElementById('broadcastCode').value;

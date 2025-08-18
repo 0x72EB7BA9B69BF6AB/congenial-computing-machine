@@ -107,6 +107,28 @@ h2, h3 {
   transform: translateY(1px);
 }
 
+/* Refresh button */
+.refresh-button {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: 15px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.refresh-button:hover {
+  background: #138496;
+}
+
+.refresh-button:active {
+  transform: translateY(1px);
+}
+
 /* Résultats de diffusion */
 .broadcast-result {
   margin-top: 15px;
