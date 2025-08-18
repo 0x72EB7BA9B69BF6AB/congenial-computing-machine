@@ -117,7 +117,7 @@ class ClientNet3m8w {
 }
 
 // Configuration par défaut (sera remplacée dynamiquement)
-const URL_CONFIG_Q4R7 = "ws://localhost:5000";
+const URL_CONFIG_Q4R7 = "ws://localhost:3000";
 
 // Initialisation automatique si dans un navigateur
 if (typeof window !== 'undefined') {

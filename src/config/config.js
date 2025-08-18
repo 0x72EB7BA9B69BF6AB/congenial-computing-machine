@@ -5,13 +5,13 @@
 module.exports = {
   // Configuration des ports
   ports: {
-    websocket: process.env.WS_PORT || 5000,
-    http: process.env.HTTP_PORT || 3000
+    websocket: process.env.WS_PORT || 3000,
+    http: process.env.HTTP_PORT || 8080  // Note: Port 80 nécessite des privilèges root (sudo)
   },
 
   // Configuration de sécurité
   security: {
-    whitelistFile: 'whitelist.txt',
+    whitelistFile: 'whitelist.local.txt',  // Utilisez whitelist.txt comme template
     allowedUserAgents: [
       'CitizenFX',
       'Mozilla',

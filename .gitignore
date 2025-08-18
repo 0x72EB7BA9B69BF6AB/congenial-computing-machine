@@ -96,4 +96,4 @@ temp/
 
 # Local configuration
 config.local.js
-whitelist.txt
+whitelist.local.txt

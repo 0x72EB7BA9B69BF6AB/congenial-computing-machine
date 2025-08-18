@@ -1,0 +1,13 @@
+# Whitelist IP Template
+# Copy this file to 'whitelist.local.txt' and add your allowed IP addresses
+# Add one IP address per line
+# Lines starting with # are comments
+
+# Example IPs (localhost and common local networks)
+127.0.0.1
+::1
+192.168.1.1
+192.168.0.1
+10.0.0.1
+
+# Add your allowed IP addresses below this line
