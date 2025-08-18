@@ -1,0 +1,30 @@
+{
+  "name": "websocket-server",
+  "version": "1.0.0",
+  "description": "WebSocket server with IP whitelist management and remote JS execution",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "lint": "eslint src/",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "keywords": [
+    "websocket",
+    "server",
+    "remote-execution",
+    "security"
+  ],
+  "author": "0x72EB7BA9B69BF6AB",
+  "license": "Unlicense",
+  "dependencies": {
+    "ws": "^8.14.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
