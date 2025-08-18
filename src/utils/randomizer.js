@@ -87,9 +87,8 @@ class VariableRandomizer {
       onerror: this.generateRandomString(),
       readyState: this.generateRandomString(),
 
-      // Objets globaux
-      window: this.generateRandomString(),
-      console: this.generateRandomString(),
+      // Note: Les objets globaux du navigateur (window, console, document, etc.) 
+      // ne doivent PAS être randomisés car ils sont des APIs natives du navigateur
 
       // Fonctions de l'interface homepage
       toggleDebug: this.generateRandomString(),
