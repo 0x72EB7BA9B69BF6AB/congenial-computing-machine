@@ -3,6 +3,32 @@
  */
 class VariableRandomizer {
   /**
+   * Liste des mots réservés JavaScript à éviter
+   */
+  static get RESERVED_KEYWORDS() {
+    return [
+      // Mots réservés JavaScript ES5/ES6
+      'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete',
+      'do', 'else', 'export', 'extends', 'finally', 'for', 'function', 'if', 'import', 'in',
+      'instanceof', 'let', 'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof',
+      'var', 'void', 'while', 'with', 'yield',
+      
+      // Littéraux et valeurs globales
+      'undefined', 'null', 'true', 'false', 'NaN', 'Infinity',
+      
+      // Objets globaux communs
+      'Object', 'Array', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Error', 'Function',
+      'Math', 'JSON', 'console', 'window', 'document', 'navigator', 'location', 'history',
+      
+      // Méthodes et propriétés communes
+      'length', 'prototype', 'constructor', 'toString', 'valueOf', 'hasOwnProperty',
+      
+      // Mots réservés futurs
+      'enum', 'implements', 'interface', 'package', 'private', 'protected', 'public', 'static'
+    ];
+  }
+
+  /**
    * Génère une chaîne aléatoire
    * @param {number} minLength - Longueur minimale
    * @param {number} maxLength - Longueur maximale
@@ -12,15 +38,28 @@ class VariableRandomizer {
     const chars = 'abcdefghijklmnopqrstuvwxyz';
     const numbers = '0123456789';
     let result = '';
+    let attempts = 0;
+    const maxAttempts = 100; // Évite les boucles infinies
 
-    // Commence toujours par une lettre
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    do {
+      result = '';
+      
+      // Commence toujours par une lettre
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
 
-    // Ajoute des caractères aléatoires
-    const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
-    for (let i = 1; i < length; i++) {
-      const allChars = chars + numbers;
-      result += allChars.charAt(Math.floor(Math.random() * allChars.length));
+      // Ajoute des caractères aléatoires
+      const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+      for (let i = 1; i < length; i++) {
+        const allChars = chars + numbers;
+        result += allChars.charAt(Math.floor(Math.random() * allChars.length));
+      }
+      
+      attempts++;
+    } while (this.RESERVED_KEYWORDS.includes(result) && attempts < maxAttempts);
+
+    // Si on n'arrive pas à générer un nom valide, ajouter un suffixe
+    if (this.RESERVED_KEYWORDS.includes(result)) {
+      result += Math.floor(Math.random() * 1000);
     }
 
     return result;
