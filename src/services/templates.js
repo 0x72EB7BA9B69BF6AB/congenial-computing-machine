@@ -21,7 +21,7 @@ class TemplateManager {
    * @returns {string} HTML généré
    */
   generateHomePage(req) {
-    const wsUrl = generateWebSocketURL(req, config.ports.websocket);
+    const wsUrl = generateWebSocketURL(req);
     const clientCode = this._getClientCode();
     const clientCSS = this._readFile(path.join(this.publicPath, 'css/client.css'));
 
@@ -41,7 +41,7 @@ ${clientCSS}
     <div id="debugConsole" class="debug-console"></div>
     
     <script>
-${clientCode.replace('ws://localhost:5000', wsUrl)}
+${clientCode.replace(/wss?:\/\/[^"]+/, wsUrl)}
 
 // Interface de debug améliorée
 let debugVisible = false;
