@@ -41,7 +41,7 @@ function isValidUserAgent(userAgent = '', allowedAgents = []) {
 function generateWebSocketURL(req) {
   const config = require('../config/config');
   const protocol = req.headers['x-forwarded-proto'] || 'ws';
-  let host = req.headers.host || 'b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
+  const host = req.headers.host || 'b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
   const wsProtocol = protocol === 'https' ? 'wss' : 'ws';
   
   // Remove any existing port and add the WebSocket port
