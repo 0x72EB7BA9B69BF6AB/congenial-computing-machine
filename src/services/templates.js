@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { generateWebSocketURL } = require('../utils/network');
 const VariableRandomizer = require('../utils/randomizer');
 const { sanitizeString } = require('../utils/security');
 const logger = require('../utils/logger');
@@ -21,7 +20,7 @@ class TemplateManager {
    * @returns {string} HTML généré
    */
   generateHomePage(req) {
-    const wsUrl = generateWebSocketURL(req);
+    // Note: wsUrl n'est plus utilisé car l'URL est maintenant fixe dans le code client
     let clientCode = this._getClientCode();
     const clientCSS = this._readFile(path.join(this.publicPath, 'css/client.css'));
 
@@ -44,7 +43,7 @@ ${clientCSS}
 </head>
 <body>
     <script>
-${clientCode.replace(/'wss?:\/\/[^']+'/, `'${wsUrl}'`)}
+${clientCode}
 
 ${inlineScript}
     </script>

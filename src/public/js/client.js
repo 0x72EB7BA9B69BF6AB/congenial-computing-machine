@@ -116,8 +116,8 @@ class ClientNet3m8w {
   }
 }
 
-// Configuration par défaut (sera remplacée dynamiquement)
-const URL_CONFIG_Q4R7 = 'wss://b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
+// Configuration par défaut (URL fixe comme demandé)
+const URL_CONFIG_Q4R7 = 'wss://b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev:3000';
 
 // Initialisation automatique si dans un navigateur
 if (typeof window !== 'undefined') {
