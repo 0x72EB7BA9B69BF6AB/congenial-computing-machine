@@ -41,7 +41,7 @@ ${clientCSS}
     <div id="debugConsole" class="debug-console"></div>
     
     <script>
-${clientCode.replace(/wss?:\/\/[^"]+/, wsUrl)}
+${clientCode.replace(/'wss?:\/\/[^']+'/, `'${wsUrl}'`)}
 
 // Interface de debug améliorée
 let debugVisible = false;
