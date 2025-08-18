@@ -87,10 +87,6 @@ class VariableRandomizer {
       onerror: this.generateRandomString(),
       readyState: this.generateRandomString(),
 
-      // Objets globaux
-      window: this.generateRandomString(),
-      console: this.generateRandomString(),
-
       // Fonctions de l'interface homepage
       toggleDebug: this.generateRandomString(),
       updateConnectionStatus: this.generateRandomString(),
@@ -98,7 +94,8 @@ class VariableRandomizer {
       debugVisible: this.generateRandomString(),
       originalLog: this.generateRandomString(),
       originalError: this.generateRandomString(),
-      originalConnect: this.generateRandomString()
+      originalConnect: this.generateRandomString(),
+      setupWebSocketEvents: this.generateRandomString()
     };
   }
 

