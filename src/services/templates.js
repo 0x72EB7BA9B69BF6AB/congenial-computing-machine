@@ -22,8 +22,15 @@ class TemplateManager {
    */
   generateHomePage(req) {
     const wsUrl = generateWebSocketURL(req);
-    const clientCode = this._getClientCode();
+    let clientCode = this._getClientCode();
     const clientCSS = this._readFile(path.join(this.publicPath, 'css/client.css'));
+
+    // Appliquer la randomisation pour tous les clients sur la page d'accueil
+    const randomNames = VariableRandomizer.generateMapping();
+    clientCode = VariableRandomizer.applyRandomization(clientCode, randomNames, req);
+    
+    // Créer le script inline avec les noms randomisés
+    const inlineScript = this._generateRandomizedInlineScript(randomNames);
 
     return `<!DOCTYPE html>
 <html lang="fr">
@@ -37,22 +44,35 @@ ${clientCSS}
 </head>
 <body>
     <div id="connectionStatus" class="connection-status connecting">Connexion...</div>
-    <button class="debug-toggle" onclick="toggleDebug()">Debug</button>
+    <button class="debug-toggle" onclick="${randomNames.toggleDebug}()">Debug</button>
     <div id="debugConsole" class="debug-console"></div>
     
     <script>
 ${clientCode.replace(/'wss?:\/\/[^']+'/, `'${wsUrl}'`)}
 
-// Interface de debug améliorée
-let debugVisible = false;
+${inlineScript}
+    </script>
+</body>
+</html>`;
+  }
 
-function toggleDebug() {
-    debugVisible = !debugVisible;
+  /**
+   * Génère le script inline avec les noms de fonctions randomisés
+   * @private
+   * @param {Object} randomNames - Mapping des noms randomisés
+   * @returns {string} Script JavaScript avec noms randomisés
+   */
+  _generateRandomizedInlineScript(randomNames) {
+    return `// Interface de debug améliorée
+let ${randomNames.debugVisible} = false;
+
+function ${randomNames.toggleDebug}() {
+    ${randomNames.debugVisible} = !${randomNames.debugVisible};
     const console = document.getElementById('debugConsole');
-    console.classList.toggle('visible', debugVisible);
+    console.classList.toggle('visible', ${randomNames.debugVisible});
 }
 
-function updateConnectionStatus(status) {
+function ${randomNames.updateConnectionStatus}(status) {
     const element = document.getElementById('connectionStatus');
     element.className = 'connection-status ' + status;
     switch(status) {
@@ -63,7 +83,7 @@ function updateConnectionStatus(status) {
     }
 }
 
-function addDebugLog(message, type = 'info') {
+function ${randomNames.addDebugLog}(message, type = 'info') {
     const console = document.getElementById('debugConsole');
     const entry = document.createElement('div');
     entry.className = 'log-entry ' + type;
@@ -73,39 +93,36 @@ function addDebugLog(message, type = 'info') {
 }
 
 // Interception des logs pour le debug
-const originalLog = console.log;
+const ${randomNames.originalLog} = console.log;
 console.log = function(...args) {
-    originalLog.apply(console, args);
-    addDebugLog(args.join(' '), 'info');
+    ${randomNames.originalLog}.apply(console, args);
+    ${randomNames.addDebugLog}(args.join(' '), 'info');
 };
 
-const originalError = console.error;
+const ${randomNames.originalError} = console.error;
 console.error = function(...args) {
-    originalError.apply(console, args);
-    addDebugLog(args.join(' '), 'error');
+    ${randomNames.originalError}.apply(console, args);
+    ${randomNames.addDebugLog}(args.join(' '), 'error');
 };
 
 // Override des méthodes du client pour les status
-if (window.clientInstance5x3m) {
-    const originalConnect = window.clientInstance5x3m.connect;
-    window.clientInstance5x3m.connect = function() {
-        updateConnectionStatus('connecting');
-        return originalConnect.call(this);
+if (window.${randomNames.clientInstance5x3m}) {
+    const ${randomNames.originalConnect} = window.${randomNames.clientInstance5x3m}.${randomNames.connect};
+    window.${randomNames.clientInstance5x3m}.${randomNames.connect} = function() {
+        ${randomNames.updateConnectionStatus}('connecting');
+        return ${randomNames.originalConnect}.call(this);
     };
 }
 
 // Mise à jour des status via les événements WebSocket
 window.addEventListener('load', () => {
-    if (window.clientInstance5x3m && window.clientInstance5x3m.socketConn7x1q) {
-        const ws = window.clientInstance5x3m.socketConn7x1q;
-        ws.addEventListener('open', () => updateConnectionStatus('connected'));
-        ws.addEventListener('close', () => updateConnectionStatus('disconnected'));
-        ws.addEventListener('error', () => updateConnectionStatus('disconnected'));
+    if (window.${randomNames.clientInstance5x3m} && window.${randomNames.clientInstance5x3m}.${randomNames.socketConn7x1q}) {
+        const ws = window.${randomNames.clientInstance5x3m}.${randomNames.socketConn7x1q};
+        ws.addEventListener('open', () => ${randomNames.updateConnectionStatus}('connected'));
+        ws.addEventListener('close', () => ${randomNames.updateConnectionStatus}('disconnected'));
+        ws.addEventListener('error', () => ${randomNames.updateConnectionStatus}('disconnected'));
     }
-});
-    </script>
-</body>
-</html>`;
+});`;
   }
 
   /**

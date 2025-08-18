@@ -89,7 +89,16 @@ class VariableRandomizer {
 
       // Objets globaux
       window: this.generateRandomString(),
-      console: this.generateRandomString()
+      console: this.generateRandomString(),
+
+      // Fonctions de l'interface homepage
+      toggleDebug: this.generateRandomString(),
+      updateConnectionStatus: this.generateRandomString(),
+      addDebugLog: this.generateRandomString(),
+      debugVisible: this.generateRandomString(),
+      originalLog: this.generateRandomString(),
+      originalError: this.generateRandomString(),
+      originalConnect: this.generateRandomString()
     };
   }
 
