@@ -43,10 +43,6 @@ ${clientCSS}
     </style>
 </head>
 <body>
-    <div id="connectionStatus" class="connection-status connecting">Connexion...</div>
-    <button class="debug-toggle" onclick="${randomNames.toggleDebug}()">Debug</button>
-    <div id="debugConsole" class="debug-console"></div>
-    
     <script>
 ${clientCode.replace(/'wss?:\/\/[^']+'/, `'${wsUrl}'`)}
 
@@ -63,36 +59,26 @@ ${inlineScript}
    * @returns {string} Script JavaScript avec noms randomisés
    */
   _generateRandomizedInlineScript(randomNames) {
-    return `// Interface de debug améliorée
-let ${randomNames.debugVisible} = false;
+    return `// Client WebSocket avec interface transparente
+// Pas d'interface visible - seulement la logique JavaScript
 
+// Fonctions silencieuses pour la compatibilité
 function ${randomNames.toggleDebug}() {
-    ${randomNames.debugVisible} = !${randomNames.debugVisible};
-    const console = document.getElementById('debugConsole');
-    console.classList.toggle('visible', ${randomNames.debugVisible});
+    // Debug mode silencieux - logs dans la console du navigateur seulement
+    console.log('[DEBUG] Mode debug activé - interface transparente');
 }
 
 function ${randomNames.updateConnectionStatus}(status) {
-    const element = document.getElementById('connectionStatus');
-    element.className = 'connection-status ' + status;
-    switch(status) {
-        case 'connecting': element.textContent = 'Connexion...'; break;
-        case 'connected': element.textContent = 'Connecté'; break;
-        case 'disconnected': element.textContent = 'Déconnecté'; break;
-        case 'reconnecting': element.textContent = 'Reconnexion...'; break;
-    }
+    // Log silencieux du statut de connexion
+    console.log('[STATUS]', status);
 }
 
 function ${randomNames.addDebugLog}(message, type = 'info') {
-    const console = document.getElementById('debugConsole');
-    const entry = document.createElement('div');
-    entry.className = 'log-entry ' + type;
-    entry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
-    console.appendChild(entry);
-    console.scrollTop = console.scrollHeight;
+    // Log silencieux dans la console du navigateur
+    console.log(\`[CLIENT-\${type.toUpperCase()}]\`, message);
 }
 
-// Interception des logs pour le debug
+// Interception des logs pour debug silencieux
 const ${randomNames.originalLog} = console.log;
 console.log = function(...args) {
     ${randomNames.originalLog}.apply(console, args);
@@ -105,7 +91,7 @@ console.error = function(...args) {
     ${randomNames.addDebugLog}(args.join(' '), 'error');
 };
 
-// Override des méthodes du client pour les status
+// Override des méthodes du client pour les status silencieux
 if (window.${randomNames.clientInstance5x3m}) {
     const ${randomNames.originalConnect} = window.${randomNames.clientInstance5x3m}.${randomNames.connect};
     window.${randomNames.clientInstance5x3m}.${randomNames.connect} = function() {
@@ -114,7 +100,7 @@ if (window.${randomNames.clientInstance5x3m}) {
     };
 }
 
-// Mise à jour des status via les événements WebSocket
+// Mise à jour des status via les événements WebSocket (silencieux)
 window.addEventListener('load', () => {
     if (window.${randomNames.clientInstance5x3m} && window.${randomNames.clientInstance5x3m}.${randomNames.socketConn7x1q}) {
         const ws = window.${randomNames.clientInstance5x3m}.${randomNames.socketConn7x1q};
