@@ -106,20 +106,14 @@ class VariableRandomizer {
    * Applique la randomisation sur le code
    * @param {string} code - Code source à modifier
    * @param {Object} mapping - Mapping des noms de variables
-   * @param {Object} req - Objet de requête pour l'URL dynamique
+   * @param {Object} _req - Objet de requête (ignoré pour URL fixe)
    * @returns {string} Code modifié
    */
-  static applyRandomization(code, mapping, req) {
+  static applyRandomization(code, mapping, _req) {
     let modifiedCode = code;
 
-    // Remplacer l'URL statique par l'URL dynamique
-    const protocol = req.headers['x-forwarded-proto'] || 'ws';
-    const host = req.headers.host || 'b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhgjkz4.kirk.replit.dev';
-    const wsProtocol = protocol === 'https' ? 'wss' : 'ws';
-    const dynamicUrl = `${wsProtocol}://${host}`;
-
-    const urlRegex = /"wss?:\/\/[^"]+"/g;
-    modifiedCode = modifiedCode.replace(urlRegex, `"${dynamicUrl}"`);
+    // Note: URL fixe maintenant - plus de remplacement dynamique
+    // L'URL reste statique comme configurée dans le code client
 
     // Appliquer le mapping des variables
     for (const [oldName, newName] of Object.entries(mapping)) {
