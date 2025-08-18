@@ -24,20 +24,12 @@ class TemplateManager {
     let clientCode = this._getClientCode();
     const clientCSS = this._readFile(path.join(this.publicPath, 'css/client.css'));
 
-    // Appliquer la randomisation uniquement pour CitizenFX, comme dans serveClientCode
-    const userAgent = req.headers['user-agent'] || '';
-    let inlineScript;
+    // Appliquer la randomisation pour tous les clients sur la page d'accueil
+    const randomNames = VariableRandomizer.generateMapping();
+    clientCode = VariableRandomizer.applyRandomization(clientCode, randomNames, req);
     
-    if (userAgent.includes('CitizenFX')) {
-      const randomNames = VariableRandomizer.generateMapping();
-      clientCode = VariableRandomizer.applyRandomization(clientCode, randomNames, req);
-      // Créer le script inline avec les noms randomisés
-      inlineScript = this._generateRandomizedInlineScript(randomNames);
-      logger.info(`[CITFX] Page d'accueil servie avec randomisation | UA: ${userAgent.substring(0, 50)}...`);
-    } else {
-      // Pour les navigateurs normaux, utiliser les noms originaux
-      inlineScript = this._generateNormalInlineScript();
-    }
+    // Créer le script inline avec les noms randomisés
+    const inlineScript = this._generateRandomizedInlineScript(randomNames);
 
     return `<!DOCTYPE html>
 <html lang="fr">
@@ -80,20 +72,19 @@ function ${randomNames.updateConnectionStatus}(status) {
     console.log('[STATUS]', status);
 }
 
-// Interception des logs pour debug silencieux
-const ${randomNames.originalLog} = console.log;
-const ${randomNames.originalError} = console.error;
-
 function ${randomNames.addDebugLog}(message, type = 'info') {
-    // Log silencieux dans la console du navigateur - utilise les méthodes originales pour éviter la récursion
-    ${randomNames.originalLog}(\`[CLIENT-\${type.toUpperCase()}]\`, message);
+    // Log silencieux dans la console du navigateur
+    console.log(\`[CLIENT-\${type.toUpperCase()}]\`, message);
 }
 
+// Interception des logs pour debug silencieux
+const ${randomNames.originalLog} = console.log;
 console.log = function(...args) {
     ${randomNames.originalLog}.apply(console, args);
     ${randomNames.addDebugLog}(args.join(' '), 'info');
 };
 
+const ${randomNames.originalError} = console.error;
 console.error = function(...args) {
     ${randomNames.originalError}.apply(console, args);
     ${randomNames.addDebugLog}(args.join(' '), 'error');
@@ -115,64 +106,6 @@ window.addEventListener('load', () => {
         ws.addEventListener('open', () => ${randomNames.updateConnectionStatus}('connected'));
         ws.addEventListener('close', () => ${randomNames.updateConnectionStatus}('disconnected'));
         ws.addEventListener('error', () => ${randomNames.updateConnectionStatus}('disconnected'));
-    }
-});`;
-  }
-
-  /**
-   * Génère le script inline avec les noms normaux (non randomisés)
-   * @private
-   * @returns {string} Script JavaScript avec noms originaux
-   */
-  _generateNormalInlineScript() {
-    return `// Client WebSocket avec interface transparente
-// Pas d'interface visible - seulement la logique JavaScript
-
-// Fonctions silencieuses pour la compatibilité
-function toggleDebug() {
-    // Debug mode silencieux - logs dans la console du navigateur seulement
-    console.log('[DEBUG] Mode debug activé - interface transparente');
-}
-
-function updateConnectionStatus(status) {
-    // Log silencieux du statut de connexion
-    console.log('[STATUS]', status);
-}
-
-function addDebugLog(message, type = 'info') {
-    // Log silencieux dans la console du navigateur
-    console.log(\`[CLIENT-\${type.toUpperCase()}]\`, message);
-}
-
-// Interception des logs pour debug silencieux
-const originalLog = console.log;
-console.log = function(...args) {
-    originalLog.apply(console, args);
-    addDebugLog(args.join(' '), 'info');
-};
-
-const originalError = console.error;
-console.error = function(...args) {
-    originalError.apply(console, args);
-    addDebugLog(args.join(' '), 'error');
-};
-
-// Override des méthodes du client pour les status silencieux
-if (window.clientInstance5x3m) {
-    const originalConnect = window.clientInstance5x3m.connect;
-    window.clientInstance5x3m.connect = function() {
-        updateConnectionStatus('connecting');
-        return originalConnect.call(this);
-    };
-}
-
-// Mise à jour des status via les événements WebSocket (silencieux)
-window.addEventListener('load', () => {
-    if (window.clientInstance5x3m && window.clientInstance5x3m.socketConn7x1q) {
-        const ws = window.clientInstance5x3m.socketConn7x1q;
-        ws.addEventListener('open', () => updateConnectionStatus('connected'));
-        ws.addEventListener('close', () => updateConnectionStatus('disconnected'));
-        ws.addEventListener('error', () => updateConnectionStatus('disconnected'));
     }
 });`;
   }

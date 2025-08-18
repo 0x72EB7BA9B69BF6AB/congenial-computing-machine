@@ -80,9 +80,16 @@ class VariableRandomizer {
       stop_video: this.generateRandomString(),
       ping: this.generateRandomString(),
 
-      // Note: Les méthodes WebSocket (onopen, onmessage, onclose, onerror, readyState) 
-      // et les objets globaux du navigateur (window, console, document, etc.) 
-      // ne doivent PAS être randomisés car ils sont des APIs natives du navigateur
+      // Méthodes WebSocket
+      onopen: this.generateRandomString(),
+      onmessage: this.generateRandomString(),
+      onclose: this.generateRandomString(),
+      onerror: this.generateRandomString(),
+      readyState: this.generateRandomString(),
+
+      // Objets globaux
+      window: this.generateRandomString(),
+      console: this.generateRandomString(),
 
       // Fonctions de l'interface homepage
       toggleDebug: this.generateRandomString(),
