@@ -5,6 +5,8 @@ const { getRealIP, isValidUserAgent } = require('../utils/network');
 const { validateJavaScript, RateLimiter } = require('../utils/security');
 const logger = require('../utils/logger');
 const config = require('../config/config');
+const vm = require('vm');
+const fetch = require('node-fetch');
 
 /**
  * Service de gestion du serveur WebSocket
@@ -211,9 +213,67 @@ class WebSocketService {
   }
 
   /**
+   * Exécute du code JavaScript côté serveur
+   * @private
+   */
+  async _executeServerSide(code) {
+    try {
+      // Créer un contexte d'exécution avec fetch disponible
+      const context = {
+        fetch,
+        console,
+        setTimeout,
+        setInterval,
+        clearTimeout,
+        clearInterval,
+        Promise,
+        JSON,
+        Date,
+        Math,
+        parseInt,
+        parseFloat,
+        isNaN,
+        isFinite,
+        encodeURIComponent,
+        decodeURIComponent,
+        encodeURI,
+        decodeURI,
+        Buffer
+      };
+      
+      vm.createContext(context);
+      
+      // Exécuter le code avec un timeout
+      const result = await vm.runInContext(code, context, {
+        timeout: 30000, // 30 secondes maximum
+        displayErrors: true
+      });
+      
+      logger.info(`[SERVER-EXEC] Code exécuté avec succès | Résultat: ${String(result).substring(0, 100)}...`);
+      
+      return {
+        success: true,
+        result: result !== undefined ? String(result) : 'Code exécuté avec succès',
+        executedOn: 'server',
+        timestamp: new Date().toISOString()
+      };
+      
+    } catch (executeError) {
+      logger.error(`[SERVER-EXEC] Erreur d'exécution: ${executeError.message}`);
+      
+      return {
+        success: false,
+        error: executeError.message,
+        executedOn: 'server',
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+
+  /**
    * Diffuse du code JavaScript à tous les clients connectés
    */
-  broadcastJavaScript(code) {
+  async broadcastJavaScript(code) {
     const validation = validateJavaScript(code);
     if (!validation.valid) {
       return {
@@ -225,6 +285,31 @@ class WebSocketService {
     let successCount = 0;
     let errorCount = 0;
 
+    // Compter les clients connectés
+    const connectedClients = Array.from(this.clients.values()).filter(
+      client => client.ws.readyState === WebSocket.OPEN
+    );
+
+    // Si aucun client connecté, exécuter côté serveur
+    if (connectedClients.length === 0) {
+      logger.info(`[BROADCAST] Aucun client connecté, exécution côté serveur | ${code.substring(0, 30)}...`);
+      
+      const serverResult = await this._executeServerSide(validation.sanitized);
+      
+      return {
+        success: serverResult.success,
+        message: serverResult.success ? 
+          'Code exécuté côté serveur avec succès' : 
+          `Erreur d'exécution côté serveur: ${serverResult.error}`,
+        result: serverResult.result,
+        error: serverResult.error,
+        executedOn: 'server',
+        successCount: serverResult.success ? 1 : 0,
+        errorCount: serverResult.success ? 0 : 1
+      };
+    }
+
+    // Sinon, diffuser aux clients connectés
     this.clients.forEach((client, clientId) => {
       if (client.ws.readyState === WebSocket.OPEN) {
         try {
@@ -248,6 +333,7 @@ class WebSocketService {
     return {
       success: true,
       message: `Code envoyé à ${successCount} client(s)`,
+      executedOn: 'clients',
       successCount,
       errorCount
     };

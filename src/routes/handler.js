@@ -70,7 +70,7 @@ class RouteHandler {
       }
     });
 
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
         const data = JSON.parse(body);
         const jsCode = data.code;
@@ -82,7 +82,7 @@ class RouteHandler {
           }, 400);
         }
 
-        const result = this.wsService.broadcastJavaScript(jsCode);
+        const result = await this.wsService.broadcastJavaScript(jsCode);
         this._sendJSONResponse(res, result);
 
       } catch (err) {
